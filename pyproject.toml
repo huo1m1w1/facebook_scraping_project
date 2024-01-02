@@ -1,0 +1,55 @@
+[tool.poetry]
+name = "fb-scraping-project"
+version = "0.1.0"
+description = "\"A Python application for scraping Facebook posts and extracting valuable information. This project utilizes the Facebook Graph API to access public post data, allowing users to gather insights, trends, or perform custom analyses on Facebook content. Please note that usage must comply with Facebook's policies, and appropriate permissions are required for accessing specific data.\""
+authors = ["Michael <h1m1w1@googlemail.com>"]
+license = "MIT License"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+selenium = "^4.15.2"
+webdriver-manager = "^4.0.1"
+pyyaml = "^6.0.1"
+black = "^23.12.0"
+flake8 = "^6.1.0"
+m2r = "^0.3.1"
+aiofiles = "^23.2.1"
+bs4 = "^0.0.1"
+pyproject-flake8 = "^6.1.0"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.6.0"
+yapf = "^0.40.2"
+flake8 = "^6.1.0"
+flake8-bugbear = "^23.12.2"
+black = "^23.12.1"
+
+[tool.flake8]
+ignore = ['E231', 'E241']
+per-file-ignores = ['__init__.py:F401']
+max-line-length = 120
+count = true
+
+[tool.black]
+line-length = 120
+experimental-string-processing = true
+
+[tool.pre-commit]
+repos = [
+  'https://github.com/pre-commit/pre-commit-hooks',
+]
+
+[tool.poetry.dev-dependencies]
+pre-commit = "^3.6.0"
+pytest = "^7.4.0"
+
+[tool.poetry.scripts]
+my-script = "src/fb_scraping_project/main:start"
+
+[build-system]
+requires = ["poetry-core", "flake8", "flake8-bugbear"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins."poetry.plugins.python"]
+package = "m2r"
