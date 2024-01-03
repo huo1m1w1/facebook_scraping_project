@@ -488,8 +488,8 @@ class FacebookScraper:
                     driver,
                     '//span[text()="Top comments" or text()="Most relevant"]',
                 )
-            except Exception as e:
-                print(f"Comment selection button not found even after scrolling: {e}")
+            except Exception as er:
+                print(f"Comment selection button not found even after scrolling: {er}")
 
     def click_all_comments_button(self, driver: WebDriver) -> None:
         """
