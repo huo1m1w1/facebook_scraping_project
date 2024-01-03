@@ -78,6 +78,6 @@ This project includes a GitHub Actions workflow for continuous integration. The 
 The workflow performs the following tasks:
 
 - Runs tests using Pytest to ensure code reliability.
-- Other steps or tasks specific to your project.
+- Running linting tools like flake8 and black for code quality.
 
 For more details, check the [.github/workflows/main.yml](.github/workflows/main.yml) file.
