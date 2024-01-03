@@ -27,7 +27,7 @@ This project provides a Python-based web scraping solution for extracting inform
 
 3. Set up configuration:
 
-Create a secret.yaml file with necessary credentials to log in to facebook.
+    Create a secret.yaml file with necessary credentials to log in to facebook.
     ```yaml
     credentials:
         username: xxxxxxxxxxxx
