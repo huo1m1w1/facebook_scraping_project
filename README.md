@@ -7,9 +7,11 @@ This project provides a Python-based web scraping solution for extracting inform
 - [Installation](#installation)
 - [Usage](#usage)
 - [Testing](#testing)
+- [GitHub Actions Workflow](#github-actions-workflow)
+- [Pre-Commit Hooks](#pre-commit-hooks)
 - [Contributing](#contributing)
 - [License](#license)
-- [GitHub Actions Workflow](#GithubActionsWorkflow)
+
 
 ## Installation
 
