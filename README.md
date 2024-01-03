@@ -36,25 +36,31 @@ This project provides a Python-based web scraping solution for extracting inform
 
 ## Usage
 
-    Describe how to use your project. Provide examples if applicable.
-    ```bash
-    poetry run python src/fb_scraping_project/main.py
+1. Describe how to use your project. Provide examples if applicable.
+
+```bash
+poetry run python src/fb_scraping_project/main.py
 
 
 ## Testing
 
-    To run tests, use the following command:
-    ```bash
-    poetry run pytest
+To run tests, use the following command:
+
+```bash
+poetry run pytest
 
 
 ## Contributing
 If you'd like to contribute, please follow these guidelines:
 
 Fork the repository.
+
 Create a new branch.
+
 Make your changes.
+
 Submit a pull request.
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
 
