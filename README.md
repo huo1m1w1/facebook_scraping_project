@@ -62,7 +62,8 @@ This project includes a GitHub Actions workflow for continuous integration. The 
 
 2. Workflow Status
 
-![CI Status](https://github.com/huo1m1w1/facebook_scraping_project/workflows/CI/badge.svg)
+[![Python CI](https://github.com/huo1m1w1/facebook_scraping_project/actions/workflows/main.yml/badge.svg)](https://github.com/huo1m1w1/facebook_scraping_project/actions/workflows/main.yml)
+
 
 3. Workflow Details
 
