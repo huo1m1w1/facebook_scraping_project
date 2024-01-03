@@ -50,20 +50,6 @@ This project provides a Python-based web scraping solution for extracting inform
     poetry run pytest
 
 
-## Contributing
-If you'd like to contribute, please follow these guidelines:
-
-Fork the repository.
-
-Create a new branch.
-
-Make your changes.
-
-Submit a pull request.
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
-
 ## GitHub Actions Workflow
 
 This project includes a GitHub Actions workflow for continuous integration. The workflow is automatically triggered on every push to the repository.
@@ -78,6 +64,52 @@ This project includes a GitHub Actions workflow for continuous integration. The 
 The workflow performs the following tasks:
 
 - Runs tests using Pytest to ensure code reliability.
-- Running linting tools like flake8 and black for code quality.
+- Install dependencies.
 
 For more details, check the [.github/workflows/main.yml](.github/workflows/main.yml) file.
+
+## Pre-Commit Hooks
+
+This project utilizes [pre-commit](https://pre-commit.com/) hooks to automate checks for code quality and maintain consistency. These hooks run before each commit, providing an extra layer of assurance.
+
+### Available Hooks
+
+- **check-added-large-files:** Prevents giant files from being committed.
+- **check-ast:** Simply checks whether the files parse as valid Python.
+- **check-byte-order-marker:** Forbids files with a UTF-8 byte-order marker.
+- **check-builtin-literals:** Requires literal syntax when initializing empty or zero Python built-in types.
+- ... (Include details for all hooks)
+
+### Installation
+
+1. Pre-commit is configured in `pyproject.toml`. To set up pre-commit hooks, run the following command after cloning the repository:
+
+    ```bash
+    poetry run pre-commit install
+
+### Run
+
+1. Run pre-commmit automatically with git commit:
+
+
+    ```bash
+    git commit
+
+2. Or run pre-commit separately:
+
+    ```bash
+    poetry run pre-commit --all-files
+
+## Contributing
+If you'd like to contribute, please follow these guidelines:
+
+Fork the repository.
+
+Create a new branch.
+
+Make your changes.
+
+Submit a pull request.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
