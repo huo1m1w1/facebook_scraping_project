@@ -38,16 +38,16 @@ This project provides a Python-based web scraping solution for extracting inform
 
 1. Describe how to use your project. Provide examples if applicable.
 
-```bash
-poetry run python src/fb_scraping_project/main.py
+    ```bash
+    poetry run python src/fb_scraping_project/main.py
 
 
 ## Testing
 
-To run tests, use the following command:
+1. To run tests, use the following command:
 
-```bash
-poetry run pytest
+    ```bash
+    poetry run pytest
 
 
 ## Contributing
