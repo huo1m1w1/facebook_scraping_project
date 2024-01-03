@@ -72,13 +72,13 @@ For more details, check the [.github/workflows/main.yml](.github/workflows/main.
 
 This project utilizes [pre-commit](https://pre-commit.com/) hooks to automate checks for code quality and maintain consistency. These hooks run before each commit, providing an extra layer of assurance.
 
-### Available Hooks
+### Examples of Hooks
 
 - **check-added-large-files:** Prevents giant files from being committed.
 - **check-ast:** Simply checks whether the files parse as valid Python.
 - **check-byte-order-marker:** Forbids files with a UTF-8 byte-order marker.
 - **check-builtin-literals:** Requires literal syntax when initializing empty or zero Python built-in types.
-- ... (Include details for all hooks)
+
 
 ### Installation
 
@@ -101,6 +101,7 @@ This project utilizes [pre-commit](https://pre-commit.com/) hooks to automate ch
     poetry run pre-commit --all-files
 
 ## Contributing
+
 If you'd like to contribute, please follow these guidelines:
 
 Fork the repository.
@@ -112,4 +113,5 @@ Make your changes.
 Submit a pull request.
 
 ## License
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
