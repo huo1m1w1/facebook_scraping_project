@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import json
+from unittest.mock import AsyncMock
+from unittest.mock import call
 from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytest
 from bs4 import BeautifulSoup
@@ -9,12 +12,20 @@ from selenium.webdriver.remote.webelement import WebElement
 
 from ..src.fb_scraping_project.scraper import check_comments
 from ..src.fb_scraping_project.scraper import create_url_with_keys
+from ..src.fb_scraping_project.scraper import FacebookScraper
 from ..src.fb_scraping_project.scraper import get_superlinks
 from ..src.fb_scraping_project.scraper import save_to_json
 
 
+@pytest.fixture
+def scraper():
+    # Assuming FacebookScraper is initialized properly in your implementation
+    return FacebookScraper()
+
+
 @pytest.mark.parametrize(
-    'list_text, expected_result', [
+    'list_text, expected_result',
+    [
         (['5 comments', 'comment'], (True, '5 comments')),
         (['comment', 'anycomment'], (False, '')),
         (['comment', '5 comments', 'Comment section'], (True, '5 comments')),
@@ -45,8 +56,8 @@ def _sample_html_element():
         Tag | NavigableString | None: The sample HTML element.
     """
     html_content = (
-        '<div><a href="http://example.com">Link 1</a>'
-        '<a href="http://example2.com">Link 2</a></div>'
+        '<div><a href="http://example.com">Link 1'
+        '</a><a href="http://example2.com">Link 2</a></div>'
     )
     return BeautifulSoup(html_content, 'html.parser').find('div')
 
@@ -74,7 +85,8 @@ def test_get_superlinks():
 
 
 @pytest.mark.parametrize(
-    'base_url, key_words, expected_url', [
+    'base_url, key_words, expected_url',
+    [
         (
             'https://example.com/search?q=',
             ['python', 'programming', 'tips'],
@@ -130,3 +142,70 @@ async def test_save_to_json(tmp_path):
         data = json.load(file)
 
     assert data == [input_dict]
+
+
+@pytest.fixture
+def facebook_scraper():
+    return FacebookScraper()
+
+
+@pytest.mark.asyncio
+async def test_login_success(facebook_scraper):
+    # Mocking the necessary functions for a successful login
+    with patch.object(
+        FacebookScraper,
+        '_load_credentials',
+        new_callable=AsyncMock,
+    ) as mock_load_credentials, patch.object(
+        FacebookScraper,
+        '_navigate_to_facebook',
+        new_callable=AsyncMock,
+    ) as mock_navigate, patch.object(
+        FacebookScraper,
+        '_login_with_credentials',
+        new_callable=AsyncMock,
+    ) as mock_login, patch.object(
+        FacebookScraper,
+        '_wait_for_successful_login',
+        new_callable=AsyncMock,
+    ) as mock_wait:
+        # Call the login method
+        await facebook_scraper.login('https://facebook.com')
+
+        # Assert that the necessary functions were called
+        mock_load_credentials.assert_called_once()
+        mock_navigate.assert_called_once_with('https://facebook.com')
+        mock_login.assert_called_once()
+        mock_wait.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_login_missing_credentials(facebook_scraper, capsys):
+    # Mocking the _load_credentials function to raise a KeyError
+    with patch.object(
+        FacebookScraper, '_load_credentials', side_effect=KeyError('Missing credential'),
+    ):
+        # Call the login method
+        await facebook_scraper.login('https://facebook.com')
+
+        # Capture and check the printed output
+        captured = capsys.readouterr()
+        assert 'Missing credential' in captured.out
+
+
+@pytest.mark.asyncio
+async def test_is_scroll_at_end(facebook_scraper):
+    # Mocking necessary properties and methods for is_scroll_at_end
+    with patch.object(facebook_scraper.driver, 'execute_script') as mock_execute_script:
+        # Mock the return values for execute_script
+        mock_execute_script.side_effect = [100, 1000, 800]
+
+        # Call is_scroll_at_end
+        await facebook_scraper.is_scroll_at_end()
+
+        # Assert that the execute_script was called with the correct arguments
+        expected_calls = [
+            call('return window.scrollY;'),
+            # Add more expected calls as needed
+        ]
+        mock_execute_script.assert_has_calls(expected_calls, any_order=True)

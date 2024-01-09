@@ -29,21 +29,11 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-# from typing import Union
-# import csv
-# from typing import Dict, List, Optional, Tuple
-# from selenium.common.exceptions import ElementNotInteractableException
-# from selenium.common.exceptions import StaleElementReferenceException
-# from selenium.common.exceptions import WebDriverException
-# from selenium.webdriver.chrome.service import Service
-# from selenium.webdriver.common.keys import Keys
 
 
 def check_comments(list_text: list[str]) -> tuple[bool, str]:
@@ -156,7 +146,7 @@ async def save_to_json(
     None
     """
     try:
-        # Read existing data from the JSON file
+        # Read existing data from the JSON file if it exists
         async with aio_open(jsonfile, 'r') as file:
             existing_data_list = json.loads(await file.read())
     except FileNotFoundError:
@@ -180,10 +170,10 @@ class FacebookScraper:
     A class for scraping data from Facebook based on search keywords.
 
     Attributes:
-        keywords (str): The keywords to search for on Facebook.
         root_dir (Path): The root directory of the project.
         driver (webdriver.Chrome): The Chrome WebDriver instance used for
             interacting with Facebook.
+        options (Options): The ChromeOptions instance for configuring the WebDriver.
         my_user_name (str): The username for your Facebook account.
         my_password (str): The password for your Facebook account.
 
@@ -191,7 +181,7 @@ class FacebookScraper:
         login(url: str) -> None:
             Logs in to Facebook using the stored credentials.
 
-        _load_credentials() -> Dict[str, str]:
+        _load_credentials() -> None:
             Loads credentials from the 'secret.yaml' file.
 
         _navigate_to_facebook(url: str) -> None:
@@ -206,12 +196,14 @@ class FacebookScraper:
         position_the_element(element: WebElement) -> None:
             Scrolls the page to position the given element within the viewport.
 
+        is_scroll_at_end() -> bool:
+            Check if the current scroll position is close to the end of the webpage.
+
     """
 
     def __init__(self) -> None:
         """
         Initializes the FacebookScraper class.
-
         """
         self.root_dir = Path(
             os.getcwd(),
@@ -443,7 +435,7 @@ class FacebookScraper:
             print(f"Timeout waiting for element with XPath: {element_xpath}")
             return None
 
-    def click_element_with_retry(self, driver: WebDriver, xpath: str) -> None:
+    def click_element_with_retry(self) -> None:
         """
         Clicks an element with XPath, retrying in case of an exception.
 
@@ -453,45 +445,20 @@ class FacebookScraper:
 
         """
         try:
-            element = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, xpath)),
+            element = WebDriverWait(self.driver, 20).until(
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        '//span[text()="Top comments" or text()="Most relevant"]',
+                    ),
+                ),
             )
             element.click()
         except Exception as e:
             time.sleep(3)
-            print(f"An error occurred when clicking element with XPath {xpath}: {e}")
+            print(f"An error occurred when clicking 'Top comments': {e}")
 
-    def click_comment_button(self, driver: WebDriver) -> None:
-        """
-        Clicks on the comment button with text "Top comments" or "Most relevant".
-
-        Args:
-            driver (WebDriver): The WebDriver instance.
-
-        """
-        try:
-            self.click_element_with_retry(
-                driver,
-                '//span[text()="Top comments" or text()="Most relevant"]',
-            )
-        except Exception as e:
-            print(f"No comment button is visible, will scroll down to find it: {e}")
-
-            # Scroll down by 400 pixels
-            scrollbar = self.locate_scrollbar()
-            actions = ActionChains(driver)
-            actions.click_and_hold(scrollbar).move_by_offset(0, 400).release().perform()
-
-            try:
-                # Wait again for the span element after scrolling
-                self.click_element_with_retry(
-                    driver,
-                    '//span[text()="Top comments" or text()="Most relevant"]',
-                )
-            except Exception as er:
-                print(f"Comment selection button not found even after scrolling: {er}")
-
-    def click_all_comments_button(self, driver: WebDriver) -> None:
+    def click_all_comments_button(self) -> None:
         """
         Clicks on the "All comments" button.
 
@@ -500,10 +467,14 @@ class FacebookScraper:
 
         """
         try:
-            self.click_element_with_retry(
-                driver,
-                '//span[text()="All comments" or text()="Oldest"]',
-            )
+            WebDriverWait(self.driver, 20).until(
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        '//span[text()="All comments" or text()="Oldest"]',
+                    ),
+                ),
+            ).click()
             time.sleep(5)
         except Exception as e:
             print(f"Error clicking on all comments button: {e}")
@@ -532,6 +503,191 @@ class FacebookScraper:
             return scrollbar
         except Exception as e:
             print(f"An error occurred when locating the scroll bar element: {e}")
+
+    async def extent_comment_contains(self):
+        """
+        Extends comments on a Facebook page if more are available.
+
+        Args:
+            driver (WebDriver): The WebDriver instance.
+
+        Returns:
+            str: "No more extensions" if no more comments to extend, "continue" otherwise.
+
+        """
+        self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+        time.sleep(5)
+        try:
+            # Wait for the div elements with the specified conditions
+            div_elements = await WebDriverWait(self.driver, 10).until(
+                EC.presence_of_all_elements_located(
+                    (
+                        By.XPATH,
+                        (
+                            '//div[@role="button" and (contains(text(), "See more")'
+                            ' or contains(text(), " replies") or'
+                            ' contains(text(), "1 reply"))]'
+                        ),
+                    ),
+                ),
+            )
+        except Exception:
+            div_elements = []
+        # Wait for the span elements with the specified condition
+        try:
+            span_elements = await WebDriverWait(self.driver, 10).until(
+                EC.presence_of_all_elements_located(
+                    (By.XPATH, '//span[contains(text(), "View more comments")]'),
+                ),
+            )
+            time.sleep(5)
+        except Exception:
+            span_elements = []
+
+        extent_buttons = div_elements + span_elements
+        if extent_buttons == []:
+            pass
+        elif len(extent_buttons) == 1:
+            extent_buttons[0].click()
+        elif len(extent_buttons) > 1:
+            for button in extent_buttons:
+                try:
+                    button.click()
+                except Exception as e:
+                    print('some button not clickable ', e)
+                await asyncio.sleep(2)
+
+        if self.is_scroll_at_end():
+            return 'No more extensions'
+        return 'continue'
+
+    async def extract_and_save_comment(
+        self,
+        row_comments: list[WebElement],
+        comments: list[dict[str, str]],
+        list_row_comments: list,
+    ):
+        """
+        Extracts and saves comments from a list of WebElements.
+
+        Args:
+            row_comments (List[WebElement]): List of WebElements representing comments.
+            comments (List[Dict[str, str]]): List to store extracted comments.
+
+        Returns:
+            List[Dict[str, str]]: List of extracted comments.
+
+        """
+        for row_comment in row_comments:
+            if row_comment.text in ['Write a comment…', '']:
+                pass
+            else:
+                list_row_comments.append(row_comment.text.split('\n'))
+
+        for list_result in list_row_comments:
+            comment = {}
+            if list_result == '':
+                continue
+            comment['Commentor'] = list_result[0]
+            comment['text'] = list_result[1]
+            comment['date of Comment'] = list_result[2]
+
+            comments.append(comment)
+        return comments
+
+    async def close_popup(self):
+        """
+        Close pop-up containers with a CSS selector '[aria-label="Close"]'.
+
+        Args:
+            scraper (FacebookScraper): An instance of the FacebookScraper class.
+
+        Returns:
+            None
+
+        Raises:
+            Exception: If an error occurs while clicking the close button.
+
+        Notes:
+            This function finds all elements with the CSS selector '[aria-label="Close"]'
+            and attempts to click on each one. It uses a reversed order to start from the
+            last element, as pop-ups often have a 'Close' button at the bottom.
+        """
+        close_buttons = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, '[aria-label="Close"]')),
+        )
+        if close_buttons:
+            if len(close_buttons) == 1:
+                try:
+                    close_buttons[0].click()
+                    await asyncio.sleep(2)
+                except Exception as e:
+                    print(
+                        'Error occurred when closing pop-up container, '
+                        'trying another way to close the pop-up container:',
+                        e,
+                    )
+            elif len(close_buttons) > 1:
+                for button in reversed(close_buttons):
+                    try:
+                        button.click()
+                        await asyncio.sleep(2)
+                    except Exception as e:
+                        print(
+                            'Error occurred when closing pop-up container, '
+                            'trying another way to close the pop-up container:',
+                            e,
+                        )
+
+    async def is_scroll_at_end(self):
+        """
+        Check if the current scroll position is close to the end of the webpage.
+
+        Returns:
+            bool: True if the scroll position is close to the end, False otherwise.
+        """
+        if not hasattr(self, 'driver') or not self.driver:
+            raise ValueError('WebDriver instance not provided.')
+
+        # Get the current scroll position
+        current_scroll_position = await asyncio.to_thread(
+            self.driver.execute_script,
+            'return window.scrollY;',
+        )
+
+        # Get the total height of the body
+        total_body_height = await asyncio.to_thread(
+            self.driver.execute_script,
+            'return document.body.scrollHeight;',
+        )
+
+        # Define a threshold (adjust as needed)
+        threshold = 20
+
+        # Check if the current scroll position is close to the end
+        return (
+            current_scroll_position
+            + await asyncio.to_thread(
+                self.driver.execute_script,
+                'return window.innerHeight;',
+            )
+            >= total_body_height - threshold
+        )
+
+    # def is_scroll_at_end(self):
+    #     # Get the current scroll position
+    #     current_scroll_position = self.driver.execute_script("return window.scrollY;")
+
+    #     # Get the total height of the body
+    #     total_body_height = self.driver.execute_script("return document.body.scrollHeight;")
+
+    #     # Define a threshold (adjust as needed)
+    #     threshold = 20
+
+    #     # Check if the current scroll position is close to the end
+    #     return current_scroll_position + self.driver.execute_script(
+    #         "return window.innerHeight;"
+    #         ) >= total_body_height - threshold
 
 
 if __name__ == '__main__':
