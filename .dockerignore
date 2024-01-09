@@ -1,0 +1,10 @@
+tests/
+__pycache__/
+*.pyc
+.mypy_cache/
+.pytest_cache/
+.pre-commit-config.yaml
+.pre-commit-hooks.yaml
+.pre-commit/
+logbook.txt
+.gitignore
