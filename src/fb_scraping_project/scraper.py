@@ -212,9 +212,11 @@ class FacebookScraper:
         # self.my_user_name = None
         # self.my_password = None
         self.options = Options()
-        self.options.headless = True
+        self.options.add_argument('--headless')
         self.options.add_experimental_option('detach', True)
         self.options.add_argument('--disable-infobars')
+        self.options.add_argument('--no-sandbox')
+        self.options.add_argument('--disable-dev-shm-usage')
         self.options.add_argument('start-maximized')
         self.options.add_argument('--disable-extensions')
         self.options.add_experimental_option(

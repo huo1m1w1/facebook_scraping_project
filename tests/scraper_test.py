@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from unittest.mock import AsyncMock
 from unittest.mock import call
 from unittest.mock import Mock
@@ -144,9 +145,15 @@ async def test_save_to_json(tmp_path):
     assert data == [input_dict]
 
 
+time.sleep(3)
+
+
 @pytest.fixture
 def facebook_scraper():
     return FacebookScraper()
+
+
+time.sleep(3)
 
 
 @pytest.mark.asyncio
@@ -179,6 +186,9 @@ async def test_login_success(facebook_scraper):
         mock_wait.assert_called_once()
 
 
+time.sleep(3)
+
+
 @pytest.mark.asyncio
 async def test_login_missing_credentials(facebook_scraper, capsys):
     # Mocking the _load_credentials function to raise a KeyError
@@ -191,6 +201,9 @@ async def test_login_missing_credentials(facebook_scraper, capsys):
         # Capture and check the printed output
         captured = capsys.readouterr()
         assert 'Missing credential' in captured.out
+
+
+time.sleep(3)
 
 
 @pytest.mark.asyncio

@@ -21,14 +21,13 @@ import re
 import time
 from datetime import datetime
 
+from fb_scraping_project.scraper import check_comments
+from fb_scraping_project.scraper import create_url_with_keys
+from fb_scraping_project.scraper import FacebookScraper
+from fb_scraping_project.scraper import get_superlinks
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-
-from .scraper import check_comments
-from .scraper import create_url_with_keys
-from .scraper import FacebookScraper
-from .scraper import get_superlinks
 
 
 async def main():
